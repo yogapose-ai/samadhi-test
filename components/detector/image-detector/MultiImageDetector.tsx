@@ -3,22 +3,56 @@
 import { useState, useCallback, useRef } from "react";
 import { useMediaPipe } from "@/hooks/useMediaPipe";
 import { ImageControls } from "./ui/ImageControls";
-import { vectorize } from "@/lib/medaipipe/angle-calculator";
+import {
+  calculateAllAngles,
+  vectorize,
+} from "@/lib/medaipipe/angle-calculator";
+import { JointAngles } from "@/types";
 
 // public/images 폴더의 모든 이미지 목록
 const ALL_IMAGES = [
+  "/images/boat.jpeg",
+  "/images/bow.png",
+  "/images/bridge.png",
+  "/images/camel.png",
+  "/images/cat.png",
+  "/images/chair.png",
   "/images/child.png",
+  "/images/corpse.jpeg",
   "/images/cow.png",
   "/images/crow.png",
   "/images/downdog.png",
+  "/images/eagle.png",
+  "/images/extended_hand_to_big_toe.png",
+  "/images/extended_side_angle.png",
+  "/images/forearm.png",
+  "/images/garland.png",
   "/images/half_boat.jpeg",
   "/images/half_lord_of_the_fishes.png",
   "/images/half_moon_pose.png",
   "/images/handstand.png",
   "/images/high_lunge.jpeg",
+  "/images/lotus.png",
+  "/images/monkey.png",
   "/images/plank.jpg",
   "/images/plank2.jpg",
+  "/images/plow.png",
+  "/images/pyramid.png",
+  "/images/reclined_pigeon.jpeg",
+  "/images/reverse_warrior.jpeg",
+  "/images/seated_forward.png",
+  "/images/seated_wide_legged_forward.jpeg",
+  "/images/side_plank.png",
+  "/images/spinx.png",
+  "/images/standing_forward_bend.png",
+  "/images/supported_shoulderstand.png",
   "/images/tree_pose.png",
+  "/images/triangle.jpeg",
+  "/images/upward_facing_bow.png",
+  "/images/upward_facing_dog.png",
+  "/images/warrior1.png",
+  "/images/warrior2.jpg",
+  "/images/warrior3.jpeg",
   "/images/wild_thing.png",
 ];
 
@@ -42,7 +76,7 @@ export default function ImageMultiDetector() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { imageLandmarker, isInitialized, error: mpError } = useMediaPipe();
   const [vectorizedResults, setVectorizedResults] = useState<
-    Record<string, number[]>
+    Record<string, JointAngles>
   >({});
   const [processedCount, setProcessedCount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -51,7 +85,7 @@ export default function ImageMultiDetector() {
     if (!isInitialized || !imageLandmarker) return;
 
     setIsProcessing(true);
-    const newVectorizedResults: Record<string, number[]> = {};
+    const newVectorizedResults: Record<string, JointAngles> = {};
     let successCount = 0;
 
     for (const imagePath of ALL_IMAGES) {
@@ -68,16 +102,18 @@ export default function ImageMultiDetector() {
 
         if (detection.landmarks && detection.landmarks.length > 0) {
           const landmarks = detection.landmarks[0];
-          if (landmarks) {
-            const vectorized = vectorize(
-              landmarks,
-              img.naturalHeight,
-              img.naturalWidth,
+          const worldLandmarks = detection.worldLandmarks?.[0];
+          if (worldLandmarks) {
+            const angles = calculateAllAngles(
+              worldLandmarks,
+              {},
+              (angles: JointAngles) => {},
             );
             const poseName = getPoseName(imagePath);
-            newVectorizedResults[poseName] = vectorized;
+            newVectorizedResults[poseName] = angles;
             successCount++;
           }
+          URL.revokeObjectURL(img.src);
         }
       } catch (error) {
         console.error(`Error processing ${imagePath}:`, error);
@@ -115,7 +151,7 @@ export default function ImageMultiDetector() {
       if (!files || !isInitialized || !imageLandmarker) return;
 
       setIsProcessing(true);
-      const newVectorizedResults: Record<string, number[]> = {};
+      const newVectorizedResults: Record<string, JointAngles> = {};
       let successCount = 0;
 
       for (const file of Array.from(files)) {
@@ -129,16 +165,16 @@ export default function ImageMultiDetector() {
         const detection = imageLandmarker.detect(img);
 
         if (detection.landmarks && detection.landmarks.length > 0) {
-          const landmarks = detection.landmarks[0];
-          if (landmarks) {
-            const vectorized = vectorize(
-              landmarks,
-              img.naturalHeight,
-              img.naturalWidth,
+          const worldLandmarks = detection.worldLandmarks?.[0];
+          if (worldLandmarks) {
+            const angles = calculateAllAngles(
+              worldLandmarks,
+              {},
+              (angles: JointAngles) => {},
             );
             // 파일명에서 pose name 추출
             const poseName = getPoseName(file.name);
-            newVectorizedResults[poseName] = vectorized;
+            newVectorizedResults[poseName] = angles;
             successCount++;
           }
         }
@@ -245,7 +281,7 @@ export default function ImageMultiDetector() {
           </p>
           {firstVectorized && (
             <p className="text-sm text-gray-600">
-              Vectorized 데이터 차원: {firstVectorized.length}차원
+              {/* Vectorized 데이터 차원: {firstVectorized.length}차원 */}
             </p>
           )}
           <div className="mt-2">
