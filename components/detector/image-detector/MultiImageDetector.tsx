@@ -75,7 +75,7 @@ export default function ImageMultiDetector() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { imageLandmarker, isInitialized, error: mpError } = useMediaPipe();
   const [vectorizedResults, setVectorizedResults] = useState<
-    Record<string, JointAngles>
+    Record<string, number[]>
   >({});
   const [processedCount, setProcessedCount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -84,7 +84,8 @@ export default function ImageMultiDetector() {
     if (!isInitialized || !imageLandmarker) return;
 
     setIsProcessing(true);
-    const newVectorizedResults: Record<string, JointAngles> = {};
+    const newVectorizedResults: Record<string, number[]> = {};
+    // const newVectorizedResults: Record<string, JointAngles> = {};
     let successCount = 0;
 
     for (const imagePath of ALL_IMAGES) {
@@ -100,18 +101,30 @@ export default function ImageMultiDetector() {
         const detection = imageLandmarker.detect(img);
 
         if (detection.landmarks && detection.landmarks.length > 0) {
+          // vectorized 추출
           const landmarks = detection.landmarks[0];
-          const worldLandmarks = detection.worldLandmarks?.[0];
-          if (worldLandmarks) {
-            const angles = calculateAllAngles(
-              worldLandmarks,
-              {},
-              (angles: JointAngles) => {},
+          if (landmarks) {
+            const vectorized = vectorize(
+              landmarks,
+              img.naturalHeight,
+              img.naturalWidth,
             );
             const poseName = getPoseName(imagePath);
-            newVectorizedResults[poseName] = angles;
+            newVectorizedResults[poseName] = vectorized;
             successCount++;
           }
+          //  // angle 기반 추출
+          //   const worldLandmarks = detection.worldLandmarks?.[0];
+          //   if (worldLandmarks) {
+          //     const angles = calculateAllAngles(
+          //       worldLandmarks,
+          //       {},
+          //       (angles: JointAngles) => {},
+          //     );
+          //     const poseName = getPoseName(imagePath);
+          //     newVectorizedResults[poseName] = angles;
+          //     successCount++;
+          //   }
           URL.revokeObjectURL(img.src);
         }
       } catch (error) {
@@ -150,7 +163,8 @@ export default function ImageMultiDetector() {
       if (!files || !isInitialized || !imageLandmarker) return;
 
       setIsProcessing(true);
-      const newVectorizedResults: Record<string, JointAngles> = {};
+      //   const newVectorizedResults: Record<string, JointAngles> = {};
+      const newVectorizedResults: Record<string, number[]> = {};
       let successCount = 0;
 
       for (const file of Array.from(files)) {
@@ -164,18 +178,30 @@ export default function ImageMultiDetector() {
         const detection = imageLandmarker.detect(img);
 
         if (detection.landmarks && detection.landmarks.length > 0) {
-          const worldLandmarks = detection.worldLandmarks?.[0];
-          if (worldLandmarks) {
-            const angles = calculateAllAngles(
-              worldLandmarks,
-              {},
-              (angles: JointAngles) => {},
+          // vectorized 추출
+          const landmarks = detection.landmarks[0];
+          if (landmarks) {
+            const vectorized = vectorize(
+              landmarks,
+              img.naturalHeight,
+              img.naturalWidth,
             );
-            // 파일명에서 pose name 추출
             const poseName = getPoseName(file.name);
-            newVectorizedResults[poseName] = angles;
+            newVectorizedResults[poseName] = vectorized;
             successCount++;
           }
+          //   // angle 기반 추출
+          //   const worldLandmarks = detection.worldLandmarks?.[0];
+          //   if (worldLandmarks) {
+          //     const angles = calculateAllAngles(
+          //       worldLandmarks,
+          //       {},
+          //       (angles: JointAngles) => {},
+          //     );
+          //     const poseName = getPoseName(file.name);
+          //     newVectorizedResults[poseName] = angles;
+          //     successCount++;
+          //   }
         }
         URL.revokeObjectURL(img.src);
       }

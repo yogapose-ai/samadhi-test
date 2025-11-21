@@ -1,4 +1,4 @@
-export const poseVectorizedData = {
+export const poseData = {
     "boat": {
         "leftElbow": 157.2,
         "rightElbow": 152.9,
