@@ -35,7 +35,6 @@ const ALL_IMAGES = [
   "/images/lotus.png",
   "/images/monkey.png",
   "/images/plank.jpg",
-  "/images/plank2.jpg",
   "/images/plow.png",
   "/images/pyramid.png",
   "/images/reclined_pigeon.jpeg",
@@ -125,24 +124,24 @@ export default function ImageMultiDetector() {
     setIsProcessing(false);
 
     // 자동으로 파일 저장
-    if (Object.keys(newVectorizedResults).length > 0) {
-      // TypeScript 파일 형식으로 저장 (poseVectorizedData.ts 형식)
-      const tsContent = `export const poseVectorizedData = ${JSON.stringify(
-        newVectorizedResults,
-        null,
-        4,
-      )};`;
+    // if (Object.keys(newVectorizedResults).length > 0) {
+    //   // TypeScript 파일 형식으로 저장 (poseVectorizedData.ts 형식)
+    //   const tsContent = `export const poseVectorizedData = ${JSON.stringify(
+    //     newVectorizedResults,
+    //     null,
+    //     4,
+    //   )};`;
 
-      const blob = new Blob([tsContent], {
-        type: "text/typescript",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `poseVectorizedData.ts`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+    //   const blob = new Blob([tsContent], {
+    //     type: "text/typescript",
+    //   });
+    //   const url = URL.createObjectURL(blob);
+    //   const a = document.createElement("a");
+    //   a.href = url;
+    //   a.download = `poseVectorizedData.ts`;
+    //   a.click();
+    //   URL.revokeObjectURL(url);
+    // }
   }, [isInitialized, imageLandmarker]);
 
   const handleFilesChange = useCallback(
@@ -185,25 +184,25 @@ export default function ImageMultiDetector() {
       setProcessedCount(successCount);
       setIsProcessing(false);
 
-      // 자동으로 파일 저장
-      if (Object.keys(newVectorizedResults).length > 0) {
-        // poseVectorizedData.ts 형식으로 저장
-        const tsContent = `export const poseVectorizedData = ${JSON.stringify(
-          newVectorizedResults,
-          null,
-          4,
-        )};`;
+      //   // 자동으로 파일 저장
+      //   if (Object.keys(newVectorizedResults).length > 0) {
+      //     // poseVectorizedData.ts 형식으로 저장
+      //     const tsContent = `export const poseVectorizedData = ${JSON.stringify(
+      //       newVectorizedResults,
+      //       null,
+      //       4,
+      //     )};`;
 
-        const blob = new Blob([tsContent], {
-          type: "text/typescript",
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `poseVectorizedData.ts`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+      //     const blob = new Blob([tsContent], {
+      //       type: "text/typescript",
+      //     });
+      //     const url = URL.createObjectURL(blob);
+      //     const a = document.createElement("a");
+      //     a.href = url;
+      //     a.download = `poseVectorizedData.ts`;
+      //     a.click();
+      //     URL.revokeObjectURL(url);
+      //   }
     },
     [isInitialized, imageLandmarker],
   );

@@ -30,7 +30,7 @@ export const LANDMARK_INDICES = {
   RIGHT_HEEL: 30,
 } as const;
 
-const MIN_VISIBILITY = 0.5; // visibility 임계값
+const MIN_VISIBILITY = 0.1; // visibility 임계값
 const DEAD_ZONE = 2.0; // 2도 이하 변화는 무시
 
 /**
